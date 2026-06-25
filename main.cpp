@@ -112,7 +112,7 @@ bool isGuard(char c) {
     return (c == '^' || c == 'v' || c == '<' || c == '>');
 }
 
-void move_player(char move) {
+bool move_player(char move) {
 
     int newRow = playerRow;
     int newCol = playerCol;
@@ -133,12 +133,11 @@ void move_player(char move) {
 
     if (target == '#') {
         cout << "You cant move through a wall! Try again." << endl;
-        return;
+        return false;
     }
 
     if (isGuard(target)) {
         gameOver = true;
-        return;
     }
 
     if (target == '$') {
@@ -150,6 +149,8 @@ void move_player(char move) {
 
     playerRow = newRow;
     playerCol = newCol;
+
+    return true;
 }
 
 char opposite(char guard) {
@@ -322,7 +323,7 @@ int main() {
         cout << "3) Advanced" << endl << endl;
 
         string response;
-        getline(cin, response);
+        cin >> response;
 
         for (char& c : response)
             c = tolower(c);
@@ -363,9 +364,9 @@ int main() {
 
             move[0] = tolower(move[0]);
 
-            move_player(move[0]);
-
-            turns--;
+            if (move_player(move[0])) {
+                turns--;
+            }
 
             if (winGame || gameOver) {
                 break;
