@@ -5,13 +5,16 @@ using namespace std;
 
 char board[7][7];
 
+int turns;
+int map;
+
 int playerRow;
 int playerCol;
 
 bool gameOver = false;
 bool winGame = false;
 
-void make_board(int map) {
+void make_board() {
     for (int i = 0; i < 7; i++) {
         for (int j = 0; j < 7; j++) {
             board[i][j] = ' ';
@@ -67,6 +70,31 @@ void make_board(int map) {
 
         board[2][5] = 'v';
         board[5][2] = '>';
+    }
+
+    if (map == 3) {
+
+        for (int i = 0; i < 7; i++) {
+            board[0][i] = '#';
+            board[6][i] = '#';
+            board[i][0] = '#';
+            board[i][6] = '#';
+        }
+
+        board[2][2] = '#';
+        board[2][3] = '#';
+
+        board[4][2] = '#';
+        board[4][4] = '#';
+
+        board[1][1] = '@';
+        playerRow = 1;
+        playerCol = 1;
+
+        board[5][5] = '$';
+
+        board[2][4] = 'v';
+        board[5][1] = '>';
     }
 }
 
@@ -267,61 +295,107 @@ void check_vision() {
     }
 }
 
+void check_turns() {
+
+    cout << "Moves Remaining: " << turns << endl;
+
+    if (turns <= 0) {
+        cout << endl << "Out of moves!" << endl;
+        gameOver = true;
+    }
+}
+
+
 int main() {
 
-    cout << "Welcome to Generic Spy Game!" << endl;
-    cout << "Choose a map:" << endl;
-    cout << "1) Easy" << endl;
-    cout << "2) Intermediate" << endl << endl;
+    bool playAgain = true;
 
-    string response;
-    getline(cin, response);
+    while (playAgain) {
 
-    for (char& c : response)
-        c = tolower(c);
+        gameOver = false;
+        winGame = false;
 
-    int map = 1;
+        cout << "Welcome to Generic Spy Game!" << endl;
+        cout << "Choose a map:" << endl;
+        cout << "1) Beginner" << endl;
+        cout << "2) Intermediate" << endl;
+        cout << "3) Advanced" << endl << endl;
 
-    if (response == "2" || response == "intermediate") {
-        map = 2;
-    }
+        string response;
+        getline(cin, response);
 
-    make_board(map);
+        for (char& c : response)
+            c = tolower(c);
 
-    while (!gameOver && !winGame) {
+        if (response == "1" || response == "beginner") {
+            map = 1;
+            turns = 15;
+        }
+
+        if (response == "2" || response == "intermediate") {
+            map = 2;
+            turns = 12;
+        }
+
+        if (response == "3" || response == "advanced") {
+            map = 3;
+            turns = 18;
+        }
+
+        make_board();
+
+        while (!gameOver && !winGame) {
+
+            print_board();
+
+            check_turns();
+
+            check_vision();
+
+            if (gameOver) {
+                break;
+            }
+
+            cout << endl << "Move (WASD): ";
+
+            string move;
+            cin >> move;
+
+            move[0] = tolower(move[0]);
+
+            move_player(move[0]);
+
+            turns--;
+
+            if (winGame || gameOver) {
+                break;
+            }
+
+            move_guards();
+
+            check_vision();
+        }
 
         print_board();
 
-        check_vision();
-
-        if (gameOver) {
-            break;
+        if (winGame) {
+            cout << endl << "MISSION SUCCESS!" << endl;
+        }
+        else {
+            cout << endl << "MISSION FAILED!" << endl;
         }
 
-        cout << endl << "Move (WASD): ";
+        string again;
 
-        string move;
-        cin >> move;
+        cout << endl << "Play another level? (y/n): ";
+        cin >> again;
 
-        move[0] = tolower(move[0]);
-
-        move_player(move[0]);
-
-        if (winGame || gameOver) {
-            break;
+        for (char& c : again) {
+            c = tolower(c);
         }
 
-        move_guards();
-
-        check_vision();
-    }
-
-    print_board();
-
-    if (winGame) {
-        cout << endl << "MISSION SUCCESS!" << endl;
-    }
-    else {
-        cout << endl << "MISSION FAILED!" << endl;
+        if (again != "y" && again != "yes") {
+            playAgain = false;
+        }
     }
 }
